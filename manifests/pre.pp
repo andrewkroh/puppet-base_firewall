@@ -48,7 +48,7 @@ class base_firewall::pre {
   }->
 
   firewall { '002 drop bogus syn,fin':
-    tcp_flags => 'SYN,FIN SYN,FIN',
+    tcp_flags => 'FIN,SYN FIN,SYN',
     jump      => 'LOG_DROP',
   }->
 
