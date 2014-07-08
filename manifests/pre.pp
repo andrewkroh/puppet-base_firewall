@@ -3,6 +3,14 @@
 # Defines a set of base firewall rules that are applied before any other
 # rules.
 #
+# === Parameters
+# 
+# [*allow_new_outgoing*]
+#   Boolean parameter that determines if the firewall should allow all new
+#   outgoing connections. The parameter defaults to false which means that
+#   new outgoing connections will be dropped unless there is a rule that
+#   explicitly allows the traffic.
+#
 # === Authors
 #
 # Andrew Kroh <andy@crowbird.com>
@@ -11,7 +19,9 @@
 #
 # Copyright 2014, Andrew Kroh
 #
-class base_firewall::pre {
+class base_firewall::pre (
+  $allow_new_outgoing = false,
+) {
 
   # Break dependency cycle
   Firewall {
@@ -41,34 +51,38 @@ class base_firewall::pre {
 
 # ---------------- Input Chain Rules ------------------
 
-  firewall { '000 accept all input on loopback':
+  firewall { '000 allow incoming on loopback':
     action    => 'accept',
     proto     => 'all',
     iniface   => 'lo',
   }->
 
-  firewall { '002 drop bogus syn,fin':
+  # FIN and SYN are mutually exclusive TCP flags. Attackers
+  # set them to do OS fingerprinting.
+  firewall { '002 drop bogus fin,syn':
     tcp_flags => 'FIN,SYN FIN,SYN',
     jump      => 'LOG_DROP',
   }->
 
+  # SYN and RST are not used together.
   firewall { '003 drop bogus syn,rst':
     tcp_flags => 'SYN,RST SYN,RST',
     jump      => 'LOG_DROP',
   }->
 
-  firewall { '004 accept established, related':
+  firewall { '004 allow incoming established, related':
     proto  => 'all',
     state  => ['RELATED', 'ESTABLISHED'],
     action => 'accept',
   }->
 
-  firewall { '005 accept all icmp':
+  firewall { '005 allow incoming icmp echo-requests':
     proto  => 'icmp',
+    icmp   => 'echo-request',
     action => 'accept',
   }->
 
-  firewall { '010 accept ssh':
+  firewall { '010 allow incoming ssh':
     dport  => 22,
     proto  => 'tcp',
     action => 'accept',
@@ -76,17 +90,27 @@ class base_firewall::pre {
 
 # -------------- Output Chain Rules ----------------
 
-  firewall { '000 accept all output on loopback':
+  firewall { '000 allow outgoing on loopback':
     chain     => 'OUTPUT',
     action    => 'accept',
     proto     => 'all',
     outiface  => 'lo',
   }->
 
-  firewall { '001 allow all outbound':
+  firewall { '001 allow outgoing established, related':
     chain  => 'OUTPUT',
     proto  => 'all',
-    state  => ['NEW', 'ESTABLISHED', 'RELATED'],
+    state  => ['ESTABLISHED', 'RELATED'],
     action => 'accept',
+  }
+
+  if ($allow_new_outgoing) {
+    firewall { '002 allow new outgoing':
+      chain   => 'OUTPUT',
+      proto   => 'all',
+      state   => 'NEW',
+      action  => 'accept',
+      require => Firewall['001 allow outgoing established, related'],
+    }
   }
 }

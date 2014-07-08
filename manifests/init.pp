@@ -21,6 +21,14 @@
 # For additional information see the Puppet Labs firewall module documenation
 # at https://forge.puppetlabs.com/puppetlabs/firewall.
 #
+# === Parameters
+#
+# [*allow_new_outgoing*]
+#   Boolean parameter that determines if the firewall should allow all new
+#   outgoing connections. The parameter defaults to false which means that
+#   new outgoing connections will be dropped unless there is a rule that
+#   explicitly allows the traffic.
+#
 # === Variables
 #
 # [*rules*]
@@ -43,11 +51,14 @@
 # Copyright 2014, Andrew Kroh
 #
 class base_firewall(
-  $rules = undef,
+  $allow_new_outgoing = false,
 ) {
   include base_firewall::logging
-  include base_firewall::pre
   include base_firewall::post
+
+  class { 'base_firewall::pre':
+    allow_new_outgoing => $allow_new_outgoing,
+  }
 
   # Include the pre/post rules and ensure that the pre
   # rules always run before the post rules to prevent
@@ -62,9 +73,14 @@ class base_firewall(
     purge => true,
   }
 
+  # Lookup hash in hiera. Note: This is using the hiera_hash function
+  # directly because it wants all the base_firewall::rules hashes defined
+  # in hiera configuration files to be merged together. Using automatic
+  # parameter lookup would have only returned the highest priority hash.
+  $rules = hiera_hash('base_firewall::rules', undef)
+
   # Create rules from the given hash.
   if $rules {
-    validate_hash($rules)
     create_resources(firewall, $rules)
   }
 }
