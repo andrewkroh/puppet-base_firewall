@@ -54,7 +54,9 @@ class base_firewall(
   $allow_new_outgoing = false,
 ) {
   include base_firewall::logging
+  include base_firewall::pre_ipv6
   include base_firewall::post
+  include base_firewall::post_ipv6
 
   class { 'base_firewall::pre':
     allow_new_outgoing => $allow_new_outgoing,
@@ -64,11 +66,16 @@ class base_firewall(
   # rules always run before the post rules to prevent
   # us from being locked out of the system.
   Firewall {
-    require => Class['base_firewall::pre'],
-    before  => Class['base_firewall::post'],
+    require => [Class['base_firewall::pre'],
+                Class['base_firewall::pre_ipv6']],
+    before  => [Class['base_firewall::post'],
+                Class['base_firewall::post_ipv6']],
   }
 
   # Purge any firewall rules not managed by Puppet.
+  # NOTE: This does not purge IPv6 rules. Those rules
+  # need to be manually purged with iptables -F. This
+  # issue is tracked at: https://tickets.puppetlabs.com/browse/MODULES-41
   resources { 'firewall':
     purge => true,
   }
