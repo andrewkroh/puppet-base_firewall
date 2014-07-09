@@ -11,6 +11,9 @@
 #   new outgoing connections will be dropped unless there is a rule that
 #   explicitly allows the traffic.
 #
+# [*sshd_port*]
+#   SSH server port that access should be granted to. Defaults to 22.
+#
 # === Authors
 #
 # Andrew Kroh <andy@crowbird.com>
@@ -21,6 +24,7 @@
 #
 class base_firewall::pre (
   $allow_new_outgoing = false,
+  $sshd_port          = 22,
 ) {
 
   # Break dependency cycle
@@ -83,7 +87,7 @@ class base_firewall::pre (
   }->
 
   firewall { '020 allow incoming ssh':
-    dport  => 22,
+    dport  => $sshd_port,
     proto  => 'tcp',
     action => 'accept',
   }->
