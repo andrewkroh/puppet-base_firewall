@@ -54,12 +54,15 @@ class base_firewall(
   $allow_new_outgoing = false,
 ) {
   include base_firewall::logging
-  include base_firewall::pre_ipv6
   include base_firewall::post
   include base_firewall::post_ipv6
 
   class { 'base_firewall::pre':
     allow_new_outgoing => $allow_new_outgoing,
+  }
+
+  class { 'base_firewall::pre_ipv6':
+    require => Exec['purge unmanaged ip6tables'],
   }
 
   # Include the pre/post rules and ensure that the pre
@@ -73,11 +76,17 @@ class base_firewall(
   }
 
   # Purge any firewall rules not managed by Puppet.
-  # NOTE: This does not purge IPv6 rules. Those rules
-  # need to be manually purged with iptables -F. This
-  # issue is tracked at: https://tickets.puppetlabs.com/browse/MODULES-41
+  # NOTE: This does not purge IPv6 rules.
   resources { 'firewall':
     purge => true,
+  }
+
+  # Purge the IPv6 rules only if unmanaged rules exist.
+  # This issue is tracked at: https://tickets.puppetlabs.com/browse/MODULES-41
+  exec { 'purge unmanaged ip6tables':
+    command => 'ip6tables -F',
+    onlyif  => 'ip6tables -S | grep \'^-A\' | grep -v \' comment \'',
+    path    => '/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/vagrant/bin',
   }
 
   # Lookup hash in hiera. Note: This is using the hiera_hash function
