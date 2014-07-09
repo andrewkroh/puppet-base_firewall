@@ -114,7 +114,7 @@ class base_firewall::pre (
       proto   => 'all',
       state   => 'NEW',
       action  => 'accept',
-      require => Firewall['001 allow outgoing established, related'],
+      require => Firewall['005 allow outgoing established, related'],
     }
   }
 }
