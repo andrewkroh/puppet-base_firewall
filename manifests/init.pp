@@ -86,7 +86,7 @@ class base_firewall(
   exec { 'purge unmanaged ip6tables':
     command => 'ip6tables -F',
     onlyif  => 'ip6tables -S | grep \'^-A\' | grep -v \' comment \'',
-    path    => '/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/vagrant/bin',
+    path    => '/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin',
   }
 
   # Lookup hash in hiera. Note: This is using the hiera_hash function
