@@ -35,29 +35,29 @@ class base_firewall::pre_ipv6 () {
   }->
 
   firewall { '001 drop ipv6':
-    proto     => 'all',
-    action    => 'drop',
-    chain     => 'LOG_DROP_IPv6',
-    provider  => 'ip6tables',
+    proto    => 'all',
+    action   => 'drop',
+    chain    => 'LOG_DROP_IPv6',
+    provider => 'ip6tables',
   }
 
 # ---------------- Input Chain Rules ------------------
 
   firewall { '000 allow incoming on loopback ipv6':
-    action    => 'accept',
-    proto     => 'all',
-    iniface   => 'lo',
-    provider  => 'ip6tables',
+    action   => 'accept',
+    proto    => 'all',
+    iniface  => 'lo',
+    provider => 'ip6tables',
   }->
 
 # -------------- Output Chain Rules ----------------
 
   firewall { '000 allow outgoing on loopback ipv6':
-    chain     => 'OUTPUT',
-    action    => 'accept',
-    proto     => 'all',
-    outiface  => 'lo',
-    provider  => 'ip6tables',
+    chain    => 'OUTPUT',
+    action   => 'accept',
+    proto    => 'all',
+    outiface => 'lo',
+    provider => 'ip6tables',
   }
 
 }

@@ -29,6 +29,11 @@
 #   new outgoing connections will be dropped unless there is a rule that
 #   explicitly allows the traffic.
 #
+# [*chain_policy*]
+#   Policy (drop, accept) to apply to each chain (INPUT, FORWARD, OUTPUT).
+#   Defaults to drop. The last rules in each chain are always log then drop
+#   so the policy has minimal effect.
+#
 # === Variables
 #
 # [*rules*]
@@ -52,17 +57,24 @@
 #
 class base_firewall(
   $allow_new_outgoing = false,
+  $chain_policy       = 'drop',
 ) {
   include base_firewall::logging
-  include base_firewall::post
-  include base_firewall::post_ipv6
 
   class { 'base_firewall::pre':
     allow_new_outgoing => $allow_new_outgoing,
   }
 
+  class { 'base_firewall::post':
+    chain_policy => $chain_policy,
+  }
+
   class { 'base_firewall::pre_ipv6':
     require => Exec['purge unmanaged ip6tables'],
+  }
+
+  class { 'base_firewall::post_ipv6':
+    chain_policy => $chain_policy,
   }
 
   # Include the pre/post rules and ensure that the pre

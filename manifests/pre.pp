@@ -4,7 +4,7 @@
 # rules.
 #
 # === Parameters
-# 
+#
 # [*allow_new_outgoing*]
 #   Boolean parameter that determines if the firewall should allow all new
 #   outgoing connections. The parameter defaults to false which means that
@@ -56,9 +56,9 @@ class base_firewall::pre (
 # ---------------- Input Chain Rules ------------------
 
   firewall { '000 allow incoming on loopback':
-    action    => 'accept',
-    proto     => 'all',
-    iniface   => 'lo',
+    action  => 'accept',
+    proto   => 'all',
+    iniface => 'lo',
   }->
 
   # FIN and SYN are mutually exclusive TCP flags. Attackers
@@ -95,10 +95,10 @@ class base_firewall::pre (
 # -------------- Output Chain Rules ----------------
 
   firewall { '000 allow outgoing on loopback':
-    chain     => 'OUTPUT',
-    action    => 'accept',
-    proto     => 'all',
-    outiface  => 'lo',
+    chain    => 'OUTPUT',
+    action   => 'accept',
+    proto    => 'all',
+    outiface => 'lo',
   }->
 
   firewall { '005 allow outgoing established, related':

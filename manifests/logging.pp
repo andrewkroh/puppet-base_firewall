@@ -26,19 +26,19 @@ class base_firewall::logging () {
   }
 
   file { '/etc/rsyslog.d/iptables.conf':
-    ensure  => file,
-    source  => 'puppet:///modules/base_firewall/rsyslog-iptables.conf',
-    mode    => '0755',
-    owner   => 'root',
-    group   => 'root',
-    notify  => Service['rsyslog'],
+    ensure => file,
+    source => 'puppet:///modules/base_firewall/rsyslog-iptables.conf',
+    mode   => '0755',
+    owner  => 'root',
+    group  => 'root',
+    notify => Service['rsyslog'],
   }
 
   file { '/etc/logrotate.d/iptables':
-    ensure  => file,
-    source  => 'puppet:///modules/base_firewall/logrotate-iptables',
-    mode    => '0755',
-    owner   => 'root',
-    group   => 'root',
+    ensure => file,
+    source => 'puppet:///modules/base_firewall/logrotate-iptables',
+    mode   => '0755',
+    owner  => 'root',
+    group  => 'root',
   }
 }
