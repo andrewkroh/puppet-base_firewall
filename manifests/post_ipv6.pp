@@ -5,62 +5,70 @@
 #
 # === Parameters
 #
-# [*chain_policy*]
-#   Policy (drop, accept) to apply to each chain (INPUT, FORWARD, OUTPUT).
-#   Defaults to drop. The last rules in each chain are always log then drop
-#   so the policy has minimal effect.
+# See base_firewall for a definition of the parameters.
 #
 # === Authors
 #
-# Andrew Kroh <andy@crowbird.com>
-#
-# === Copyright
-#
-# Copyright 2014-2015, Andrew Kroh
+# Andrew Kroh
 #
 class base_firewall::post_ipv6 (
-  $chain_policy = 'drop',
+  $chain_policy,
 ) {
 
-  # Break dependency cycle
-  Firewall { before => undef }
-
-# ---------- Set policy for each chain -----------------
-
-  firewallchain { 'INPUT:filter:IPv6':
-    ensure => 'present',
-    policy => 'drop',
-  }
-
-  firewallchain { 'OUTPUT:filter:IPv6':
-    ensure => 'present',
-    policy => 'drop',
-  }
-
-  firewallchain { 'FORWARD:filter:IPv6':
-    ensure => 'present',
-    policy => 'drop',
+  # Break dependency cycle and set default provider
+  # for rules defined in this scope.
+  Firewall {
+    before   => undef,
+    provider => 'ip6tables',
   }
 
 # ------------------------------------------------------
 
-  firewall { '999 drop all incoming ipv6':
-    proto    => 'all',
-    jump     => 'LOG_DROP_IPv6',
-    provider => 'ip6tables',
+  firewall { '999 drop all incoming IPv6':
+    proto => 'all',
+    jump  => 'DROP_INPUT',
+    chain => 'INPUT',
   }->
 
-  firewall { '999 drop all outgoing ipv6':
-    proto    => 'all',
-    jump     => 'LOG_DROP_IPv6',
-    chain    => 'OUTPUT',
-    provider => 'ip6tables',
+  firewall { '999 drop all outgoing IPv6':
+    proto => 'all',
+    jump  => 'DROP_OUTPUT',
+    chain => 'OUTPUT',
   }->
 
-  firewall { '999 drop all forwarding ipv6':
-    proto    => 'all',
-    jump     => 'LOG_DROP_IPv6',
-    chain    => 'FORWARD',
-    provider => 'ip6tables',
+  firewall { '999 drop all forwarding IPv6':
+    proto => 'all',
+    jump  => 'DROP_FORWARD',
+    chain => 'FORWARD',
   }
+
+# ------------------------------------------------------
+
+  if $chain_policy == 'drop' and $::ip6tables_input_policy != 'drop' {
+    exec { 'IPv6 INPUT policy is DROP':
+      command => 'ip6tables -P INPUT DROP',
+      user    => root,
+      path    => $::path,
+      require => Firewall['999 drop all incoming IPv6'],
+    }
+  }
+
+  if $chain_policy == 'drop' and $::ip6tables_output_policy != 'drop' {
+    exec { 'IPv6 OUTPUT policy is DROP':
+      command => 'ip6tables -P OUTPUT DROP',
+      user    => root,
+      path    => $::path,
+      require => Firewall['999 drop all outgoing IPv6'],
+    }
+  }
+
+  if $chain_policy == 'drop' and $::ip6tables_forward_policy != 'drop' {
+    exec { 'IPv6 FORWARD policy is DROP':
+      command => 'ip6tables -P FORWARD DROP',
+      user    => root,
+      path    => $::path,
+      require => Firewall['999 drop all forwarding IPv6'],
+    }
+  }
+
 }

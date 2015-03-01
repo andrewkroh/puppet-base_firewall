@@ -23,16 +23,43 @@
 #
 # === Parameters
 #
-# [*allow_new_outgoing*]
+# [*allow_new_outgoing_ipv4*]
 #   Boolean parameter that determines if the firewall should allow all new
-#   outgoing connections. The parameter defaults to false which means that
+#   outgoing IPv4 connections. The parameter defaults to false which means that
 #   new outgoing connections will be dropped unless there is a rule that
 #   explicitly allows the traffic.
 #
+# [*allow_new_outgoing_ipv6*]
+#   Boolean parameter that determines if the firewall should allow all new
+#   outgoing IPv6 connections. The parameter defaults to false which means that
+#   new outgoing connections will be dropped unless there is a rule that
+#   explicitly allows the traffic.
+#
+# [*sshd_port*]
+#   SSH server port that access should be granted to. Defaults to 22.
+#
+# [*purge*]
+#   Boolean parameter that determines if all unmanaged firewall rules and chains
+#   are purged. Defaults to true.  Requires puppetlabs/firewall 1.2.0+ in order
+#   for IPv6 resources to be purged.
+#
 # [*chain_policy*]
 #   Policy (drop, accept) to apply to each chain (INPUT, FORWARD, OUTPUT).
-#   Defaults to drop. The last rules in each chain are always log then drop
+#   Defaults to drop. The last rules in each chain are always "log then drop"
 #   so the policy has minimal effect.
+#
+# [*chain_purge*]
+#   An alternative method of purging unmanaged firewall rules that operates
+#   only on the INPUT, OUTPUT, and FORWARD chains. This method of purging
+#   unmanaged rules allows you to specify an array of regular expressions that
+#   match against firewall rules that should be ignored when purging (see the
+#   'ignores' variable. The default value is false and its usage with
+#   'purge' is mutually exclusive.
+#
+#   An example use case would be to ignore firewall rules that are managed
+#   by another application like docker.
+#
+# [*chain_purge_ignores*]
 #
 # === Variables
 #
@@ -43,34 +70,71 @@
 #   This parameter can be used to pass in firewall rules through hiera
 #   configuration.
 #
+# [*ignores*]
+#   An array of regular expressions that match against firewall rules that
+#   should be ignored when purging. Defaults to undefined and is only used
+#   when chain_purge is set to true.
+#
 # === Examples
 #
 #  class { 'base_firewall': }
 #
 # === Authors
 #
-# Andrew Kroh <andy@crowbird.com>
-#
-# === Copyright
-#
-# Copyright 2014, Andrew Kroh
+# Andrew Kroh
 #
 class base_firewall(
-  $allow_new_outgoing = false,
-  $chain_policy       = 'drop',
+  $allow_new_outgoing_ipv4 = false,
+  $allow_new_outgoing_ipv6 = false,
+  $sshd_port               = 22,
+  $purge                   = true,
+  $chain_policy            = 'drop',
+  $chain_purge             = false,
 ) {
+
   include base_firewall::logging
 
-  class { 'base_firewall::pre':
-    allow_new_outgoing => $allow_new_outgoing,
+  #------------------------ Validation ----------------------------------------
+
+  validate_bool($allow_new_outgoing_ipv4)
+  validate_bool($allow_new_outgoing_ipv6)
+
+  if !is_integer($sshd_port) or $sshd_port < 1 or $sshd_port > 65535 {
+    fail('sshd_port must be an integer between [1, 65535].')
   }
 
-  class { 'base_firewall::post':
+  validate_bool($purge)
+  validate_re($chain_policy, ['^accept$', '^drop$'])
+  validate_bool($chain_purge)
+
+  if str2bool($purge) and str2bool($chain_purge) {
+    fail('purge and chain_purge and mutually exclusive. Set only one to true.')
+  }
+
+  #----------------------------------------------------------------------------
+
+  # Lookup array use hiera so that arrays defined in different files are
+  # automatically merged.
+  $ignores = hiera_array('base_firewall::ignores', [])
+
+  class { 'base_firewall::pre_ipv4':
+    allow_new_outgoing => $allow_new_outgoing_ipv4,
+    sshd_port          => $sshd_port,
+    chain_policy       => $chain_policy,
+    chain_purge        => $chain_purge,
+    chain_purge_ignore => $ignores,
+  }
+
+  class { 'base_firewall::post_ipv4':
     chain_policy => $chain_policy,
   }
 
   class { 'base_firewall::pre_ipv6':
-    require => Exec['purge unmanaged ip6tables'],
+    allow_new_outgoing => $allow_new_outgoing_ipv6,
+    sshd_port          => $sshd_port,
+    chain_policy       => $chain_policy,
+    chain_purge        => $chain_purge,
+    chain_purge_ignore => $ignores,
   }
 
   class { 'base_firewall::post_ipv6':
@@ -81,24 +145,17 @@ class base_firewall(
   # rules always run before the post rules to prevent
   # us from being locked out of the system.
   Firewall {
-    require => [Class['base_firewall::pre'],
+    require => [Class['base_firewall::pre_ipv4'],
                 Class['base_firewall::pre_ipv6']],
-    before  => [Class['base_firewall::post'],
+    before  => [Class['base_firewall::post_ipv4'],
                 Class['base_firewall::post_ipv6']],
   }
 
   # Purge any firewall rules not managed by Puppet.
-  # NOTE: This does not purge IPv6 rules.
-  resources { 'firewall':
-    purge => true,
-  }
-
-  # Purge the IPv6 rules only if unmanaged rules exist.
-  # This issue is tracked at: https://tickets.puppetlabs.com/browse/MODULES-41
-  exec { 'purge unmanaged ip6tables':
-    command => 'ip6tables -F',
-    onlyif  => 'ip6tables -S | grep \'^-A\' | grep -v \' comment \'',
-    path    => '/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin',
+  if str2bool($purge) {
+    resources { 'firewall':
+      purge => true,
+    }
   }
 
   # Lookup hash in hiera. Note: This is using the hiera_hash function
