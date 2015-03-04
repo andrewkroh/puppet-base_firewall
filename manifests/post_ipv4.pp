@@ -27,6 +27,7 @@ class base_firewall::post_ipv4 (
   firewall { '999 drop all incoming':
     proto => 'all',
     jump  => 'DROP_INPUT',
+    chain => 'INPUT',
   }->
 
   firewall { '999 drop all outgoing':

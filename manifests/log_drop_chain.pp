@@ -3,8 +3,8 @@
 # Creates an iptables filter chain that logs traffic and then drops it. This
 # does not install any jumps that point to the chain created by this type.
 #
-# The title must of the form chain:table:protocol like INPUT:filter:IPv4. That
-# example would create a new IPv4 chain titled DROP_INPUT.
+# The title must of the form chain:table:protocol like INPUT:filter:IPv4. The
+# previous example would create a new IPv4 chain titled DROP_INPUT.
 #
 define base_firewall::log_drop_chain () {
 

@@ -59,8 +59,6 @@
 #   An example use case would be to ignore firewall rules that are managed
 #   by another application like docker.
 #
-# [*chain_purge_ignores*]
-#
 # === Variables
 #
 # [*rules*]
@@ -107,13 +105,13 @@ class base_firewall(
   validate_re($chain_policy, ['^accept$', '^drop$'])
   validate_bool($chain_purge)
 
-  if str2bool($purge) and str2bool($chain_purge) {
+  if $purge and $chain_purge {
     fail('purge and chain_purge and mutually exclusive. Set only one to true.')
   }
 
   #----------------------------------------------------------------------------
 
-  # Lookup array use hiera so that arrays defined in different files are
+  # Lookup array using hiera so that arrays defined in different files are
   # automatically merged.
   $ignores = hiera_array('base_firewall::ignores', [])
 
@@ -152,7 +150,7 @@ class base_firewall(
   }
 
   # Purge any firewall rules not managed by Puppet.
-  if str2bool($purge) {
+  if $purge {
     resources { 'firewall':
       purge => true,
     }
