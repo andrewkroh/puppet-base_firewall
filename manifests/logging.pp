@@ -10,11 +10,7 @@
 #
 # === Authors
 #
-# Andrew Kroh <andy@crowbird.com>
-#
-# === Copyright
-#
-# Copyright 2014, Andrew Kroh
+# Andrew Kroh
 #
 class base_firewall::logging () {
 
