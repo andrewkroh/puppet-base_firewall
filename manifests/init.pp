@@ -160,7 +160,7 @@ class base_firewall(
   # directly because it wants all the base_firewall::rules hashes defined
   # in hiera configuration files to be merged together. Using automatic
   # parameter lookup would have only returned the highest priority hash.
-  $rules = hiera_hash('base_firewall::rules', undef)
+  $rules = hiera_hash('base_firewall::rules', {})
 
   # Create rules from the given hash.
   if $rules {

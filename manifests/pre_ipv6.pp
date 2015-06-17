@@ -71,9 +71,9 @@ class base_firewall::pre_ipv6 (
 
 # ------------- Create Log and Drop IPv6 Chains ---------------
 
-  log_drop_chain { 'INPUT:filter:IPv6': }
-  log_drop_chain { 'OUTPUT:filter:IPv6': }
-  log_drop_chain { 'FORWARD:filter:IPv6': }
+  base_firewall::log_drop_chain { 'INPUT:filter:IPv6': }
+  base_firewall::log_drop_chain { 'OUTPUT:filter:IPv6': }
+  base_firewall::log_drop_chain { 'FORWARD:filter:IPv6': }
 
 # ---------------- Input Chain Rules ------------------
 
