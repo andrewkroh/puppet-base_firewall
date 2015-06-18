@@ -1,0 +1,33 @@
+{
+  "name": "andrewkroh-base_firewall",
+  "version": "1.1.0",
+  "author": "Andrew Kroh",
+  "summary": "Puppet module that simplifies firewall configuration and enables rules to defined in Hiera.",
+  "license": "Apache-2.0",
+  "source": "https://github.com/andrewkroh/puppet-base_firewall",
+  "project_page": "https://github.com/andrewkroh/puppet-base_firewall",
+  "issues_url": "https://github.com/andrewkroh/puppet-base_firewall/issues",
+  "dependencies": [
+    {
+      "name": "puppetlabs-firewall",
+      "version_range": ">= 1.2.0"
+    },
+    {
+      "name": "puppetlabs-stdlib"
+    }
+  ],
+  "operatingsystem_support": [
+    {
+      "operatingsystem": "CentOS",
+      "operatingsystemrelease": [
+        "6"
+      ]
+    },
+    {
+      "operatingsystem": "RedHat",
+      "operatingsystemrelease": [
+        "6"
+      ]
+    }
+  ]
+}
