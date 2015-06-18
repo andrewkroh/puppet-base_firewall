@@ -1,6 +1,6 @@
 # base_firewall
 
-[![Build Status](https://travis-ci.org/andrewkroh/puppet-base_firewall.svg)](https://travis-ci.org/andrewkroh/puppet-base_firewall)
+[![Build Status](https://travis-ci.org/andrewkroh/puppet-base_firewall.svg?branch=master)](https://travis-ci.org/andrewkroh/puppet-base_firewall)
 
 #### Table of Contents
 
