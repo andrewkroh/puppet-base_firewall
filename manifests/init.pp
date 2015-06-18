@@ -59,6 +59,12 @@
 #   An example use case would be to ignore firewall rules that are managed
 #   by another application like docker.
 #
+# [*manage_logging*]
+#   Boolean parameter specifying whether this module should manage logger
+#   config for iptables. Defaults to false. If true then rsyslog will be
+#   configured to write all iptables events to /var/log/iptables.log and
+#   logrotate will manage the file.
+#
 # === Variables
 #
 # [*rules*]
@@ -88,9 +94,8 @@ class base_firewall(
   $purge                   = true,
   $chain_policy            = 'drop',
   $chain_purge             = false,
+  $manage_logging          = false,
 ) {
-
-  include base_firewall::logging
 
   #------------------------ Validation ----------------------------------------
 
@@ -104,6 +109,7 @@ class base_firewall(
   validate_bool($purge)
   validate_re($chain_policy, ['^accept$', '^drop$'])
   validate_bool($chain_purge)
+  validate_bool($manage_logging)
 
   if $purge and $chain_purge {
     fail('purge and chain_purge and mutually exclusive. Set only one to true.')
@@ -165,5 +171,9 @@ class base_firewall(
   # Create rules from the given hash.
   if $rules {
     create_resources(firewall, $rules)
+  }
+
+  if $manage_logging {
+    include base_firewall::logging
   }
 }
