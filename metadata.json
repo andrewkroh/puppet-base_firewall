@@ -1,8 +1,8 @@
 {
   "name": "andrewkroh-base_firewall",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "author": "Andrew Kroh",
-  "summary": "Puppet module that simplifies firewall configuration and enables rules to defined in Hiera.",
+  "summary": "Puppet module that simplifies firewall configuration and enables rules to be defined in Hiera.",
   "license": "Apache-2.0",
   "source": "https://github.com/andrewkroh/puppet-base_firewall",
   "project_page": "https://github.com/andrewkroh/puppet-base_firewall",
