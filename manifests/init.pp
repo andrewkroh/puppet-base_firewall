@@ -145,6 +145,11 @@ class base_firewall(
     chain_policy => $chain_policy,
   }
 
+  # Load puppetlabs-firewall for package installation and service control
+  # this important for dists using firewalld (RHEL7 / CentOS7)
+  # iptables save etc would be missing otherwise 
+  class {'firewall':}
+
   # Include the pre/post rules and ensure that the pre
   # rules always run before the post rules to prevent
   # us from being locked out of the system.
@@ -169,8 +174,12 @@ class base_firewall(
   $rules = hiera_hash('base_firewall::rules', {})
 
   # Create rules from the given hash.
+  $defaults = {
+  	# firewall class before firewall types
+  	require => Class['firewall']
+  }
   if $rules {
-    create_resources(firewall, $rules)
+    create_resources(firewall, $rules, $defaults)
   }
 
   if $manage_logging {
