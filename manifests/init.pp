@@ -87,7 +87,7 @@
 #
 # Andrew Kroh
 #
-class base_firewall(
+class base_firewall (
   $allow_new_outgoing_ipv4 = false,
   $allow_new_outgoing_ipv6 = false,
   $sshd_port               = 22,
@@ -120,6 +120,8 @@ class base_firewall(
   # Lookup array using hiera so that arrays defined in different files are
   # automatically merged.
   $ignores = hiera_array('base_firewall::ignores', [])
+  
+  Class ['base_firewall'] ->
 
   class { 'base_firewall::pre_ipv4':
     allow_new_outgoing => $allow_new_outgoing_ipv4,
@@ -127,7 +129,7 @@ class base_firewall(
     chain_policy       => $chain_policy,
     chain_purge        => $chain_purge,
     chain_purge_ignore => $ignores,
-  }
+  } 
 
   class { 'base_firewall::post_ipv4':
     chain_policy => $chain_policy,
