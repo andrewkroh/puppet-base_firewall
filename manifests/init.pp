@@ -121,8 +121,6 @@ class base_firewall (
   # automatically merged.
   $ignores = hiera_array('base_firewall::ignores', [])
   
-  Class ['base_firewall'] ->
-
   class { 'base_firewall::pre_ipv4':
     allow_new_outgoing => $allow_new_outgoing_ipv4,
     sshd_port          => $sshd_port,
