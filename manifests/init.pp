@@ -145,10 +145,6 @@ class base_firewall (
     chain_policy => $chain_policy,
   } ->
 
-  Class['base_firewall']
-
-  contain ::base_firewall
-
 
   # Load puppetlabs-firewall for package installation and service control
   # this important for dists using firewalld (RHEL7 / CentOS7)
