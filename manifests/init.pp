@@ -117,6 +117,11 @@ class base_firewall (
 
   #----------------------------------------------------------------------------
 
+  # Load puppetlabs-firewall for package installation and service control
+  # this important for dists using firewalld (RHEL7 / CentOS7)
+  # iptables save etc would be missing otherwise 
+  include firewall
+
   # Lookup array using hiera so that arrays defined in different files are
   # automatically merged.
   $ignores = hiera_array('base_firewall::ignores', [])
@@ -146,11 +151,6 @@ class base_firewall (
   class { 'base_firewall::post_ipv6':
     chain_policy => $chain_policy,
   }
-
-  # Load puppetlabs-firewall for package installation and service control
-  # this important for dists using firewalld (RHEL7 / CentOS7)
-  # iptables save etc would be missing otherwise 
-  class {'firewall':}
 
   # Include the pre/post rules and ensure that the pre
   # rules always run before the post rules to prevent
