@@ -2,7 +2,7 @@ fixtures:
   repositories:
     firewall:
       repo: "https://github.com/puppetlabs/puppetlabs-firewall.git"
-      ref:  "1.2.0"
+      ref:  "master"
     stdlib:
       repo: "https://github.com/puppetlabs/puppetlabs-stdlib.git"
   symlinks:
