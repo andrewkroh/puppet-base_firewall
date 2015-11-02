@@ -16,6 +16,5 @@ end
 gem 'puppet-lint'
 gem 'puppetlabs_spec_helper'
 gem 'rake'
-gem 'facter', ' >=2.0.0'
 
 # vim:ft=ruby
