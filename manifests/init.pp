@@ -143,8 +143,7 @@ class base_firewall (
 
   class { 'base_firewall::post_ipv6':
     chain_policy => $chain_policy,
-  } ->
-
+  }
 
   # Load puppetlabs-firewall for package installation and service control
   # this important for dists using firewalld (RHEL7 / CentOS7)
