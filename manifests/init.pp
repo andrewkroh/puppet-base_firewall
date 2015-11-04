@@ -87,7 +87,7 @@
 #
 # Andrew Kroh
 #
-class base_firewall(
+class base_firewall (
   $allow_new_outgoing_ipv4 = false,
   $allow_new_outgoing_ipv6 = false,
   $sshd_port               = 22,
@@ -120,14 +120,14 @@ class base_firewall(
   # Lookup array using hiera so that arrays defined in different files are
   # automatically merged.
   $ignores = hiera_array('base_firewall::ignores', [])
-
+  
   class { 'base_firewall::pre_ipv4':
     allow_new_outgoing => $allow_new_outgoing_ipv4,
     sshd_port          => $sshd_port,
     chain_policy       => $chain_policy,
     chain_purge        => $chain_purge,
     chain_purge_ignore => $ignores,
-  }
+  } 
 
   class { 'base_firewall::post_ipv4':
     chain_policy => $chain_policy,
@@ -144,6 +144,11 @@ class base_firewall(
   class { 'base_firewall::post_ipv6':
     chain_policy => $chain_policy,
   }
+
+  # Load puppetlabs-firewall for package installation and service control
+  # this important for dists using firewalld (RHEL7 / CentOS7)
+  # iptables save etc would be missing otherwise 
+  class {'firewall':}
 
   # Include the pre/post rules and ensure that the pre
   # rules always run before the post rules to prevent
@@ -169,8 +174,12 @@ class base_firewall(
   $rules = hiera_hash('base_firewall::rules', {})
 
   # Create rules from the given hash.
+  $defaults = {
+  	# firewall class before firewall types
+  	require => Class['firewall']
+  }
   if $rules {
-    create_resources(firewall, $rules)
+    create_resources(firewall, $rules, $defaults)
   }
 
   if $manage_logging {

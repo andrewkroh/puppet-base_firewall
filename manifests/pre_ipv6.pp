@@ -89,9 +89,8 @@ class base_firewall::pre_ipv6 (
     action => 'accept',
   }->
 
-  firewall { '008 allow incoming icmp echo-requests IPv6':
+  firewall { '008 allow incoming icmp6':
     proto  => 'ipv6-icmp',
-    icmp   => 'echo-request',
     action => 'accept',
   }->
 
@@ -114,6 +113,12 @@ class base_firewall::pre_ipv6 (
     chain  => 'OUTPUT',
     proto  => 'all',
     state  => ['ESTABLISHED', 'RELATED'],
+    action => 'accept',
+  }
+
+  firewall { '007 allow outgoing icmp6':
+    chain  => 'OUTPUT',
+    proto  => 'ipv6-icmp',
     action => 'accept',
   }
 
