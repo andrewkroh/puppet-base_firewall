@@ -65,6 +65,10 @@
 #   configured to write all iptables events to /var/log/iptables.log and
 #   logrotate will manage the file.
 #
+# [*dualstack*]
+#   Boolean parameter specifying whether to create the same rules for
+#   both IPv4 and IPv6.
+#
 # === Variables
 #
 # [*rules*]
