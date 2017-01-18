@@ -85,6 +85,7 @@ Parameters:
 |-----------|---------|-------------|
 | allow_new_outgoing_ipv4 | false | Boolean parameter that determines if the firewall should allow all new outgoing IPv4 connections. The parameter defaults to false which means that new outgoing connections will be dropped unless there is a rule that explicitly allows the traffic. |
 | allow_new_outgoing_ipv6 | false | Boolean parameter that determines if the firewall should allow all new outgoing IPv6 connections. The parameter defaults to false which means that new outgoing connections will be dropped unless there is a rule that explicitly allows the traffic. |
+| manage_sshd_firewall | true | Boolean parameter that determines if a firewall rule should be added to allow SSH access on the given port (see the 'sshd_port' parameter). The parameter defaults to true. If you set it to false, make sure you open up the SSH port yourself, else you will be locked out! |
 | sshd_port | 22 | SSH server port that access should be granted to. Defaults to 22. |
 | purge | true | Boolean parameter that determines if all unmanaged firewall rules and chains are purged. Defaults to true. Requires puppetlabs/firewall 1.2.0+ in order,for IPv6 resources to be purged. |
 | chain_policy | DROP | Policy (drop, accept) to apply to each chain (INPUT, FORWARD, OUTPUT). Defaults to drop. The last rules in each chain are always "log then drop" so the policy has minimal effect. |
