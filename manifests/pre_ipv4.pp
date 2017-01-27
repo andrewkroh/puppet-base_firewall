@@ -13,6 +13,7 @@
 #
 class base_firewall::pre_ipv4 (
   $allow_new_outgoing,
+  $manage_sshd_firewall,
   $sshd_port,
   $chain_policy,
   $chain_purge,
@@ -106,13 +107,15 @@ class base_firewall::pre_ipv4 (
     proto  => 'icmp',
     icmp   => 'echo-request',
     action => 'accept',
-  }->
+  }
 
-  firewall { '020 allow incoming ssh':
-    dport  => $sshd_port,
-    proto  => 'tcp',
-    action => 'accept',
-  }->
+  if $manage_sshd_firewall {
+    firewall { '020 allow incoming ssh':
+      dport  => $sshd_port,
+      proto  => 'tcp',
+      action => 'accept',
+    }
+  }
 
 # -------------- Output Chain Rules ----------------
 

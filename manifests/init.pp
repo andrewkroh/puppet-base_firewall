@@ -35,6 +35,12 @@
 #   new outgoing connections will be dropped unless there is a rule that
 #   explicitly allows the traffic.
 #
+# [*manage_sshd_firewall*]
+#   Boolean parameter that determines if a firewall rule should be added to allow
+#   SSH access on the given port (see the 'sshd_port' parameter). The parameter
+#   defaults to true. If you set it to false, make sure you open up the SSH port
+#   yourself, else you will be locked out!
+#
 # [*sshd_port*]
 #   SSH server port that access should be granted to. Defaults to 22.
 #
@@ -90,6 +96,7 @@
 class base_firewall(
   $allow_new_outgoing_ipv4 = false,
   $allow_new_outgoing_ipv6 = false,
+  $manage_sshd_firewall    = true,
   $sshd_port               = 22,
   $purge                   = true,
   $chain_policy            = 'drop',
@@ -101,6 +108,7 @@ class base_firewall(
 
   validate_bool($allow_new_outgoing_ipv4)
   validate_bool($allow_new_outgoing_ipv6)
+  validate_bool($manage_sshd_firewall)
 
   if !is_integer($sshd_port) or $sshd_port < 1 or $sshd_port > 65535 {
     fail('sshd_port must be an integer between [1, 65535].')
@@ -122,11 +130,12 @@ class base_firewall(
   $ignores = hiera_array('base_firewall::ignores', [])
 
   class { 'base_firewall::pre_ipv4':
-    allow_new_outgoing => $allow_new_outgoing_ipv4,
-    sshd_port          => $sshd_port,
-    chain_policy       => $chain_policy,
-    chain_purge        => $chain_purge,
-    chain_purge_ignore => $ignores,
+    allow_new_outgoing   => $allow_new_outgoing_ipv4,
+    manage_sshd_firewall => $manage_sshd_firewall,
+    sshd_port            => $sshd_port,
+    chain_policy         => $chain_policy,
+    chain_purge          => $chain_purge,
+    chain_purge_ignore   => $ignores,
   }
 
   class { 'base_firewall::post_ipv4':
@@ -134,11 +143,12 @@ class base_firewall(
   }
 
   class { 'base_firewall::pre_ipv6':
-    allow_new_outgoing => $allow_new_outgoing_ipv6,
-    sshd_port          => $sshd_port,
-    chain_policy       => $chain_policy,
-    chain_purge        => $chain_purge,
-    chain_purge_ignore => $ignores,
+    allow_new_outgoing   => $allow_new_outgoing_ipv6,
+    manage_sshd_firewall => $manage_sshd_firewall,
+    sshd_port            => $sshd_port,
+    chain_policy         => $chain_policy,
+    chain_purge          => $chain_purge,
+    chain_purge_ignore   => $ignores,
   }
 
   class { 'base_firewall::post_ipv6':
