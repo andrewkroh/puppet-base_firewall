@@ -9,11 +9,11 @@
   "issues_url": "https://github.com/andrewkroh/puppet-base_firewall/issues",
   "dependencies": [
     {
-      "name": "puppetlabs-firewall",
+      "name": "puppetlabs/firewall",
       "version_range": ">= 1.2.0"
     },
     {
-      "name": "puppetlabs-stdlib"
+      "name": "puppetlabs/stdlib"
     }
   ],
   "operatingsystem_support": [
