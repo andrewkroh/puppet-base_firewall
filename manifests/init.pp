@@ -71,6 +71,10 @@
 #   configured to write all iptables events to /var/log/iptables.log and
 #   logrotate will manage the file.
 #
+# [*dualstack*]
+#   Boolean parameter specifying whether to create the same rules for
+#   both IPv4 and IPv6.
+#
 # === Variables
 #
 # [*rules*]
@@ -102,6 +106,7 @@ class base_firewall(
   $chain_policy            = 'drop',
   $chain_purge             = false,
   $manage_logging          = false,
+  $dualstack               = false,
 ) {
 
   #------------------------ Validation ----------------------------------------
@@ -118,6 +123,7 @@ class base_firewall(
   validate_re($chain_policy, ['^accept$', '^drop$'])
   validate_bool($chain_purge)
   validate_bool($manage_logging)
+  validate_bool($dualstack)
 
   if $purge and $chain_purge {
     fail('purge and chain_purge and mutually exclusive. Set only one to true.')
@@ -180,7 +186,15 @@ class base_firewall(
 
   # Create rules from the given hash.
   if $rules {
-    create_resources(firewall, $rules)
+    if $dualstack {
+      $rules_ipv4 = suffix_hash_title($rules, ' IPv4')
+      $rules_ipv6 = suffix_hash_title($rules, ' IPv6')
+      create_resources(firewall, $rules_ipv4, { 'provider' => 'iptables' })
+      create_resources(firewall, $rules_ipv6, { 'provider' => 'ip6tables' })
+    }
+    else {
+      create_resources(firewall, $rules)
+    }
   }
 
   if $manage_logging {

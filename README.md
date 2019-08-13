@@ -90,7 +90,9 @@ Parameters:
 | purge | true | Boolean parameter that determines if all unmanaged firewall rules and chains are purged. Defaults to true. Requires puppetlabs/firewall 1.2.0+ in order,for IPv6 resources to be purged. |
 | chain_policy | DROP | Policy (drop, accept) to apply to each chain (INPUT, FORWARD, OUTPUT). Defaults to drop. The last rules in each chain are always "log then drop" so the policy has minimal effect. |
 | chain_purge | false | An alternative method of purging unmanaged firewall rules that operates only on the INPUT, OUTPUT, and FORWARD chains. This method of purging unmanaged rules allows you to specify an array of regular expressions that match against firewall rules that should be ignored when purging (see the `ignores` variable. The default value is false and its usage with `purge` is mutually exclusive. An example use case would be to ignore firewall rules that are managed by another application like docker. |
-| manage_logging | false | Boolean parameter specifying whether this module should manage logger config for iptables. Defaults to false. If true then rsyslog will be configured to write all iptables events to /var/log/iptables.log and logrotate will manage the file. |                                                                                                                                                                                                                                                                                                                                                                                                                      
+| manage_logging | false | Boolean parameter specifying whether this module should manage logger config for iptables. Defaults to false. If true then rsyslog will be configured to write all iptables events to /var/log/iptables.log and logrotate will manage the file. |
+| dualstack | false | Boolean parameter specifying whether to create the same rules for both IPv4 and IPv6. |
+
 
 Variables (set through Hiera config):
 
